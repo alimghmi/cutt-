@@ -21,3 +21,5 @@ urlpatterns = [
     path('', include('core.urls')),
 
 ]
+
+urlpatterns += [path('silk/', include('silk.urls', namespace='silk'))]
