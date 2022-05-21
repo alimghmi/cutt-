@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from django.utils import timezone
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from .serializers import (
         CreateURLShortenSerializer,
@@ -79,29 +79,27 @@ class DeleteShortenURLAPI(APIView):
 class StatsShortenURLAPI(APIView):
 
     def get(self, request):
+
+        def datedelta(**kwrgs):
+            return timezone.now() - timedelta(**kwrgs)
+
         try:
             slug = request.GET['slug']
-            visitors = Visitor.objects.filter(link__slug = slug)
-            total_visitors = visitors.count()
-            last_year = visitors.filter(visited_at__gte = timezone.now() - timedelta(days=365)).count()
-            last_month = visitors.filter(visited_at__gte = timezone.now() - timedelta(days=30)).count()
-            last_week = visitors.filter(visited_at__gte = timezone.now() - timedelta(days=7)).count()
-            yesterday = visitors.filter(visited_at__gte = timezone.now() - timedelta(days=1)).count()
-            today = visitors.filter(visited_at__gte = timezone.now().date()).count()
-            last_hour = visitors.filter(visited_at__gte = timezone.now() - timedelta(hours=1)).count()
+            visitors = Visitor.objects.prefetch_related('link').filter(link__slug = slug)
 
             data = {
-                'total': total_visitors,
-                'last_year': last_year,
-                'last_month': last_month,
-                'last_week': last_week,
-                'yesterday': yesterday,
-                'today': today,
-                'last_hour': last_hour,
+
+                'total': visitors.count(),
+                'year': visitors.filter(visited_at__gte = datedelta(days=365)).count(),
+                'month': visitors.filter(visited_at__gte = datedelta(days=30)).count(),
+                'week': visitors.filter(visited_at__gte = datedelta(days=7)).count(),
+                'yesterday': visitors.filter(visited_at__gte = datedelta(days=1)).count(),
+                'today': visitors.filter(visited_at__gte = timezone.now().date()).count(),
+                'hour': visitors.filter(visited_at__gte = datedelta(hours=1)).count(),
+                'minute': visitors.filter(visited_at__gte = datedelta(minutes=1)).count(),
+            
             }
 
             return Response({'status': 'OK', 'data': data}, status=status.HTTP_200_OK)
         except:
             return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)
-
-
