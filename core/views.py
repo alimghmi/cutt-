@@ -7,6 +7,7 @@ from rest_framework import status
 from .serializers import (
         CreateURLShortenSerializer,
         DeleteURLShortenSerializer,
+        UpdateURLShortenSerializer,
 )
 
 from .models import Link, Visitor
@@ -40,7 +41,7 @@ class RedirectPage(TemplateView):
 
 
 class CreateShortenURLAPI(APIView):
-    
+
     def post(self, request):
         try:
             serializer = CreateURLShortenSerializer(data=request.data)
@@ -68,11 +69,11 @@ class DeleteShortenURLAPI(APIView):
         try:
             serializer = DeleteURLShortenSerializer(data=request.data)
             if serializer.is_valid():
-                slug = serializer.data.get('slug')
+                secret_slug = serializer.data.get('secret_slug')
             else:
                 return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)
             
-            Link.objects.get(delete_slug=slug).delete()
+            Link.objects.get(secret_slug=secret_slug).delete()
             return Response({'status': 'OK'}, status=status.HTTP_200_OK)
         except:
             return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)
@@ -82,9 +83,9 @@ class StatsShortenURLAPI(APIView):
 
     def get(self, request):
         try:
-            slug = request.GET['slug']
+            secret_slug = request.GET['secret_slug']
             visitors = Visitor.objects.prefetch_related('link')
-            return Response({'status': 'OK', 'data': get_shortenurl_stats(visitors, slug)}, status=status.HTTP_200_OK)
+            return Response({'status': 'OK', 'data': get_shortenurl_stats(visitors, secret_slug)}, status=status.HTTP_200_OK)
         except:
             return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -92,8 +93,15 @@ class StatsShortenURLAPI(APIView):
 class UpdateShortenURLAPI(APIView):
 
     def post(self, request):
-        try:
-            pass
-        except:
-            return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)
+        # try:
+            serializer = UpdateURLShortenSerializer(data=request.data, partial=True)
+            if serializer.is_valid():
+                data = serializer.data
+            else:
+                return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)
+
+            link = Link.objects.filter(secret_slug=data['secret_slug']).update(**data)
+            return Response({'status': 'OK'})
+        # except:
+        #     return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)
 
