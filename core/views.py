@@ -11,6 +11,7 @@ from .serializers import (
         CreateURLShortenSerializer,
         DeleteURLShortenSerializer,
 )
+
 from .models import Link, Visitor
 from .utils import get_client_ip
 
@@ -55,7 +56,9 @@ class CreateShortenURLAPI(APIView):
             link.save()
             data = {
                 'slug': link.slug,
+                'secret_slug': link.secret_slug
             }
+            
             return Response({'status': 'OK', 'data': data}, status=status.HTTP_200_OK)
         except:
             return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)
@@ -70,7 +73,7 @@ class DeleteShortenURLAPI(APIView):
             else:
                 return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)
             
-            Link.objects.filter(slug=slug).delete()
+            Link.objects.get(delete_slug=slug).delete()
             return Response({'status': 'OK'}, status=status.HTTP_200_OK)
         except:
             return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)

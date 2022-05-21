@@ -1,3 +1,4 @@
+import secrets
 from django.db import models
 from .utils import generate_delete_link, generate_shorten_link
 
@@ -8,7 +9,7 @@ class Link(models.Model):
 
     origin = models.URLField(max_length=512, null=False, blank=False)
     slug = models.CharField(max_length=16, unique=True, blank=True)
-    # delete_slug = models.CharField(max_length=32, unique=True, blank=True)
+    secret_slug = models.CharField(max_length=32, unique=True, blank=True)
     is_enabled = models.BooleanField(null=False, default=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -17,8 +18,8 @@ class Link(models.Model):
         if not self.slug:
             self.slug = generate_shorten_link(self)
 
-        # if not self.delete_slug:
-        #     self.delete_slug = generate_delete_link(self)
+        if not self.secret_slug:
+            self.secret_slug = generate_delete_link(self)
 
         return super().save(*args, **kwargs)
     
