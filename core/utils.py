@@ -44,17 +44,21 @@ def datedelta(**kwrgs):
 
 
 def get_shortenurl_stats(visitors_instance, slug):
-    visitors = visitors_instance.filter(link__secret_slug = slug)
+    try:
 
-    return {
-        'total': visitors.count(),
-        'year': visitors.filter(visited_at__gte = datedelta(days=365)).count(),
-        'month': visitors.filter(visited_at__gte = datedelta(days=30)).count(),
-        'week': visitors.filter(visited_at__gte = datedelta(days=7)).count(),
-        'yesterday': visitors.filter(visited_at__gte = datedelta(days=1)).count(),
-        'today': visitors.filter(visited_at__gte = timezone.now().date()).count(),
-        'hour': visitors.filter(visited_at__gte = datedelta(hours=1)).count(),
-        'minute': visitors.filter(visited_at__gte = datedelta(minutes=1)).count(),        
-    }
+        visitors = visitors_instance.get(link__secret_slug = slug)
+        return {
+            'total': visitors.count(),
+            'year': visitors.filter(visited_at__gte = datedelta(days=365)).count(),
+            'month': visitors.filter(visited_at__gte = datedelta(days=30)).count(),
+            'week': visitors.filter(visited_at__gte = datedelta(days=7)).count(),
+            'yesterday': visitors.filter(visited_at__gte = datedelta(days=1)).count(),
+            'today': visitors.filter(visited_at__gte = timezone.now().date()).count(),
+            'hour': visitors.filter(visited_at__gte = datedelta(hours=1)).count(),
+            'minute': visitors.filter(visited_at__gte = datedelta(minutes=1)).count(),        
+        }
+
+    except:
+        raise
 
      
