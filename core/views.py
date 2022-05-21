@@ -82,12 +82,12 @@ class DeleteShortenURLAPI(APIView):
 class StatsShortenURLAPI(APIView):
 
     def get(self, request):
-        # try:
+        try:
             secret_slug = request.GET['secret_slug']
             visitors = Visitor.objects.prefetch_related('link')
             return Response({'status': 'OK', 'data': get_shortenurl_stats(visitors, secret_slug)}, status=status.HTTP_200_OK)
-        # except:
-        #     return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UpdateShortenURLAPI(APIView):
@@ -100,7 +100,7 @@ class UpdateShortenURLAPI(APIView):
             else:
                 return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)
 
-            link = Link.objects.filter(secret_slug=data['secret_slug']).update(**data)
+            Link.objects.filter(secret_slug=data['secret_slug']).update(**data)
             return Response({'status': 'OK'})
         except:
             return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)
