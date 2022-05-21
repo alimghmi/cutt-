@@ -40,6 +40,7 @@ class RedirectPage(TemplateView):
 
 
 class CreateShortenURLAPI(APIView):
+    
     def post(self, request):
         try:
             serializer = CreateURLShortenSerializer(data=request.data)
@@ -62,6 +63,7 @@ class CreateShortenURLAPI(APIView):
 
 
 class DeleteShortenURLAPI(APIView):
+
     def post(self, request):
         try:
             serializer = DeleteURLShortenSerializer(data=request.data)
@@ -85,3 +87,13 @@ class StatsShortenURLAPI(APIView):
             return Response({'status': 'OK', 'data': get_shortenurl_stats(visitors, slug)}, status=status.HTTP_200_OK)
         except:
             return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateShortenURLAPI(APIView):
+
+    def post(self, request):
+        try:
+            pass
+        except:
+            return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)
+
