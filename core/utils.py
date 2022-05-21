@@ -43,8 +43,8 @@ def datedelta(**kwrgs):
     return timezone.now() - timedelta(**kwrgs)
 
 
-def get_shortenurl_stats(visitors_instance, slug):
-    visitors = visitors_instance.get(link__secret_slug = slug)
+def get_shortenurl_stats(visitors_instance, secret_slug):
+    visitors = visitors_instance.filter(link__secret_slug = secret_slug)
     return {
         'total': visitors.count(),
         'year': visitors.filter(visited_at__gte = datedelta(days=365)).count(),

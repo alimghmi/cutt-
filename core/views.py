@@ -17,7 +17,7 @@ from .utils import get_client_ip, get_shortenurl_stats
 class IndexPage(TemplateView):
     
     def get(self, request):
-        return HttpResponse('200')
+        return Response({'status': 'OK'})
 
 
 class RedirectPage(TemplateView):
@@ -82,18 +82,18 @@ class DeleteShortenURLAPI(APIView):
 class StatsShortenURLAPI(APIView):
 
     def get(self, request):
-        try:
+        # try:
             secret_slug = request.GET['secret_slug']
             visitors = Visitor.objects.prefetch_related('link')
             return Response({'status': 'OK', 'data': get_shortenurl_stats(visitors, secret_slug)}, status=status.HTTP_200_OK)
-        except:
-            return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)
+        # except:
+        #     return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UpdateShortenURLAPI(APIView):
 
     def post(self, request):
-        # try:
+        try:
             serializer = UpdateURLShortenSerializer(data=request.data, partial=True)
             if serializer.is_valid():
                 data = serializer.data
@@ -102,6 +102,6 @@ class UpdateShortenURLAPI(APIView):
 
             link = Link.objects.filter(secret_slug=data['secret_slug']).update(**data)
             return Response({'status': 'OK'})
-        # except:
-        #     return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)
 
