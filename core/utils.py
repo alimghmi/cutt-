@@ -1,5 +1,7 @@
 import random
 import string
+from datetime import timedelta
+from django.utils import timezone
 
 ALL_CHARACTERS = string.ascii_letters
 
@@ -35,3 +37,24 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
+
+def datedelta(**kwrgs):
+    return timezone.now() - timedelta(**kwrgs)
+
+
+def get_shortenurl_stats(visitors_instance, slug):
+    visitors = visitors_instance.filter(link__secret_slug = slug)
+
+    return {
+        'total': visitors.count(),
+        'year': visitors.filter(visited_at__gte = datedelta(days=365)).count(),
+        'month': visitors.filter(visited_at__gte = datedelta(days=30)).count(),
+        'week': visitors.filter(visited_at__gte = datedelta(days=7)).count(),
+        'yesterday': visitors.filter(visited_at__gte = datedelta(days=1)).count(),
+        'today': visitors.filter(visited_at__gte = timezone.now().date()).count(),
+        'hour': visitors.filter(visited_at__gte = datedelta(hours=1)).count(),
+        'minute': visitors.filter(visited_at__gte = datedelta(minutes=1)).count(),        
+    }
+
+     
