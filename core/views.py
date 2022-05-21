@@ -3,7 +3,9 @@ from django.views.generic import TemplateView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from yaml import serialize
+from django.utils import timezone
+
+from datetime import datetime, timedelta
 
 from .serializers import (
         CreateURLShortenSerializer,
@@ -72,4 +74,34 @@ class DeleteShortenURLAPI(APIView):
             return Response({'status': 'OK'}, status=status.HTTP_200_OK)
         except:
             return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class StatsShortenURLAPI(APIView):
+
+    def get(self, request):
+        try:
+            slug = request.GET['slug']
+            visitors = Visitor.objects.filter(link__slug = slug)
+            total_visitors = visitors.count()
+            last_year = visitors.filter(visited_at__gte = timezone.now() - timedelta(days=365)).count()
+            last_month = visitors.filter(visited_at__gte = timezone.now() - timedelta(days=30)).count()
+            last_week = visitors.filter(visited_at__gte = timezone.now() - timedelta(days=7)).count()
+            yesterday = visitors.filter(visited_at__gte = timezone.now() - timedelta(days=1)).count()
+            today = visitors.filter(visited_at__gte = timezone.now().date()).count()
+            last_hour = visitors.filter(visited_at__gte = timezone.now() - timedelta(hours=1)).count()
+
+            data = {
+                'total': total_visitors,
+                'last_year': last_year,
+                'last_month': last_month,
+                'last_week': last_week,
+                'yesterday': yesterday,
+                'today': today,
+                'last_hour': last_hour,
+            }
+
+            return Response({'status': 'OK', 'data': data}, status=status.HTTP_200_OK)
+        except:
+            return Response({'status': 'FAIL'}, status=status.HTTP_400_BAD_REQUEST)
+
 
